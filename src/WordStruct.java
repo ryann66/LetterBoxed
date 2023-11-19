@@ -7,13 +7,13 @@ public class WordStruct {
     public Set<Character> charset;
 
     public WordStruct (String word) {
-        firstLetter = word.charAt(0);
-        lastLetter = word.charAt(word.length() - 1);
+        this.word = word.toLowerCase();
+        firstLetter = this.word.charAt(0);
+        lastLetter = this.word.charAt(this.word.length() - 1);
         charset = new HashSet<>();
-        this.word = word;
 
         for (int i = 0; i < word.length(); i++) {
-            charset.add(word.charAt(i));
+            charset.add(this.word.charAt(i));
         }
     }
 
@@ -42,5 +42,9 @@ public class WordStruct {
             }
             return 0;
         }
+    }
+
+    public String toString() {
+        return this.word;
     }
 }
