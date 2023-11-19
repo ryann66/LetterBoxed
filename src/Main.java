@@ -7,6 +7,7 @@ import java.util.*;
 
 public class Main {
     private static final File BASIC_DICT = new File("src/dict.txt");
+    private static final int MAX_LEN = 4, NUM_ANSWERS = 1;
 
     public static void main(String[] args) throws FileNotFoundException {
         Character[][] edges;
@@ -14,14 +15,20 @@ public class Main {
             edges = getEdgesFromUser();
         } while (edges.length < 2);
 
+        System.out.println("Processing...");
+
         WordFilter filter = new WordFilter(edges);
         ListMultimap<Character, WordStruct> charMap = createValidWordsMultiMap(filter, BASIC_DICT);
+
+        Queue<WordStruct> ans = getPossibleAnswers(charMap, 100, 10);
 
 
         for (Character c : charMap.keySet()) {
             List<WordStruct> words = charMap.get(c);
             System.out.println(c + ": " + words);
         }
+
+        for (WordStruct ws : ans) System.out.println(ws);
     }
 
     /**
@@ -93,5 +100,32 @@ public class Main {
 
     private static boolean validCharacter(char c) {
         return Character.isAlphabetic(c);
+    }
+
+    /**
+     * Determines the n first valid solutions
+     * @param charMap the map of characters to words
+     * @param l the maximum length (number of words) of solutions
+     * @param n the target number of solutions to find
+     * @return a queue ~n WordStructs where each word struct is a solution
+     */
+    private static Queue<WordStruct> getPossibleAnswers(ListMultimap<Character, WordStruct> charMap, int n, int l) {
+        Queue<WordStruct> answers = new LinkedList<>();
+        PriorityQueue<WordStruct> possibleRoots = new PriorityQueue<>(charMap.values());
+        while (!possibleRoots.isEmpty() && answers.size() < n) {
+            // pull next from possible roots
+            // append all possible children to next
+            // add any answer children into answers
+            // add all other children into priority queue
+            WordStruct next = possibleRoots.poll();
+            List<WordStruct> suffixes = charMap.get(next.lastLetter);
+            for (WordStruct ws : suffixes) {
+                WordStruct newws = next.append(ws);
+                if (newws.charset.size() == charMap.keySet().size()) answers.add(newws);
+                else if (newws.words.size() < l) possibleRoots.add(newws);
+            }
+        }
+
+        return answers;
     }
 }
